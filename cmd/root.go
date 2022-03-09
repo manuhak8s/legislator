@@ -22,4 +22,8 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(greetingsCmd)
+	rootCmd.AddCommand(namespaceCmd)
+
+	rootCmd.AddCommand(applyCmd)
+	rootCmd.AddCommand(destroyCmd)
 }
