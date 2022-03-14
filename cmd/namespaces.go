@@ -5,6 +5,7 @@ import (
 	"context"
 	"github.com/spf13/cobra"
 	"github.com/manuhak8s/legislator/pkg/k8s"
+	"github.com/manuhak8s/legislator/pkg/log"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -16,6 +17,9 @@ var namespaceCmd = &cobra.Command{
 }
 
 func getNamespaceData(cmd *cobra.Command, args []string) {
+	log.LogNamespaceReading()
+	fmt.Println("")
+
 	//clientset, err := k8s.GetK8sClient()
 	clientset, err := k8s.GetK8sDefaultClient()
 	if err != nil {
