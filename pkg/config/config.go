@@ -1,42 +1,45 @@
 package config
 
 import (
-	_"fmt"
+	"fmt"
+	"io/ioutil"
+
+	"gopkg.in/yaml.v2"
 )
 
 const constitutionConfigName = ".constitution.yaml"
 
 type Config struct {
-
-	// Default value for attaching network policies by one key-value-pair.
-	// e.g. denyAll, allowAll, denyOtherNamespaces, ...
-	// default string `yaml:"default"`
-
-	// List of sets that contains pods or namespaces that are connected or not.
-	// Each set represents an isolated bubble with its inner components.
-	// ConnectedSets
-
-	// Name of the set.
-	// Name
-
-	// Selects pods by their explicit name to a set.
-	// PodSelector
-
-	// Represents a pod by its name.
-	// PodName
-
-	// Regular expression of pods for selecting them by a naming convention.
-	// e.g. etcd-*
-	// PodExpression
-
-	// Selects namespaces by their explicit name.
-	// NamespaceSelector
-
-	// Represents a namespace by its name.
-	// NamespaceName
-
-	// Regular expression of pods for selecting them by a naming convention.
-	// NamespaceExpression
-
-
+    Default string `yaml:"default"`
+    ConnectedSets ConnectedSets `yaml:"connectedSets"`
 }
+
+func (config *Config) ReadConfig() (*Config, error) {
+
+    yamlFile, err := ioutil.ReadFile("/Users/manuelhaugg/legislator/test.constitution.yaml")
+    if err != nil {
+        return nil, err
+    }
+    err = yaml.Unmarshal(yamlFile, config)
+    if err != nil {
+        return nil, err
+    }
+
+    return config, nil
+}
+
+func (config *Config) GetDefaultPolicy() (string, error) {
+    defaultPolicy := config.Default
+    if defaultPolicy == "" {
+        return "", fmt.Errorf("no default policy found in constitution config")
+    }
+    
+    return defaultPolicy, nil
+}
+
+func (config *Config) GetConnectedSets() (ConnectedSets, error) {
+    connectedSets := config.ConnectedSets
+    
+    return connectedSets, nil
+}
+
