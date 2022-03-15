@@ -11,7 +11,7 @@ import (
 func GetK8sClient() (*kubernetes.Clientset, error) {
 	home, exists := os.LookupEnv("Home")
 	if !exists {
-		home = "/root"
+		home, _ = os.UserHomeDir()
 	}
 
 	kubeConfigPath := filepath.Join(home, ".kube", "config")
