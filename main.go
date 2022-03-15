@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/manuhak8s/legislator/cmd"
+	_"github.com/manuhak8s/legislator/cmd"
 )
 
-func main() {
+/*func main() {
 	cmd.Execute()
- }
+ }*/
