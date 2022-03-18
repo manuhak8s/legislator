@@ -21,9 +21,11 @@ func Execute() {
 }
 
 func init() {
+	// demo and test commands
 	rootCmd.AddCommand(greetingsCmd)
 	rootCmd.AddCommand(namespaceCmd)
 
+	// core cli commands
 	rootCmd.AddCommand(applyCmd)
 	rootCmd.AddCommand(destroyCmd)
 }
