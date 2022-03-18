@@ -3,6 +3,7 @@ package log
 import (
 	"os"
 	"time"
+	"fmt"
 
 	"github.com/briandowns/spinner"
 	_ "github.com/fatih/color"
@@ -20,4 +21,5 @@ func triggerCircledSpinner(text string) {
 
 func LogNamespaceReading() {
 	triggerCircledSpinner(" Reading namespaces from kubernetes cluster ..")
+	fmt.Println("")
 }

@@ -18,7 +18,6 @@ var namespaceCmd = &cobra.Command{
 
 func getNamespaceData(cmd *cobra.Command, args []string) {
 	log.LogNamespaceReading()
-	fmt.Println("")
 
 	//clientset, err := k8s.GetK8sClient()
 	clientset, err := k8s.GetK8sDefaultClient()
