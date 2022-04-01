@@ -1,0 +1,12 @@
+connectedSets:
+  - name: set-1
+    podSelector:
+      matchLabels:
+        role: ui
+        app: angular-frontend
+  - name: set-2
+    podSelector:
+      matchLabels:
+        role: backend
+      matchExpressions:
+        - etcd-*
