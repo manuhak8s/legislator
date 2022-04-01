@@ -1,0 +1,12 @@
+default: denyAll
+connectedSets:
+  - name: first-two-nodes-connected
+    podSelector:
+      - podName: etcd-0
+      - podName: etcd-1
+  - name: third-node-disconnected
+    podSelector:
+      - podName: etcd-2
+  - name: all-nodes-connected
+    podSelector:
+      - podExpression: etcd-*

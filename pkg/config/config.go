@@ -14,9 +14,9 @@ type Config struct {
     ConnectedSets ConnectedSets `yaml:"connectedSets"`
 }
 
-func (config *Config) ReadConfig() (*Config, error) {
+func (config *Config) ReadConfig(configPath string) (*Config, error) {
 
-    yamlFile, err := ioutil.ReadFile("/Users/manuelhaugg/legislator/test.constitution.yaml")
+    yamlFile, err := ioutil.ReadFile(configPath)
     if err != nil {
         return nil, err
     }

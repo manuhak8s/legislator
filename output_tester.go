@@ -1,6 +1,6 @@
 package main
 
-import (
+/*import (
 	"fmt"
     "github.com/manuhak8s/legislator/pkg/config"
 )
@@ -18,4 +18,4 @@ func main() {
 
 	connectedSets, _ := c.GetConnectedSets()
 	fmt.Println(connectedSets[2])
-}
+}*/

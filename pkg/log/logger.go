@@ -23,3 +23,23 @@ func LogNamespaceReading() {
 	triggerCircledSpinner(" Reading namespaces from kubernetes cluster ..")
 	fmt.Println("")
 }
+
+func LogNetworkPolicyReading() {
+	triggerCircledSpinner(" Reading network policies from current namespace ..")
+	fmt.Println("")
+}
+
+func LogNetworkPolicyCreating() {
+	triggerCircledSpinner(" Creating network policy into current namespace ..")
+	fmt.Println("")
+}
+
+func LogNetworkPolicyRemoving() {
+	triggerCircledSpinner(" Removing network policies into current namespace ..")
+	fmt.Println("")
+}
+
+func LogNetworkPolicyApllying() {
+	triggerCircledSpinner(" Applying network policy into current namespace ..")
+	fmt.Println("")
+}
