@@ -1,17 +1,18 @@
 package config
 
 import (
-	"errors"
+	_"errors"
 	"os"
 	"testing"
+	_"log"
 
 	"github.com/stretchr/testify/assert"
 )
 
 var c Config
 
-func TestReadConfig(t *testing.T) {
-	configPath := "../../test_data/constitution.yaml"
+func TestReadV2Config(t *testing.T) {
+	configPath := "../../test_data/v2_data.yaml"
 	_, err := os.Stat(configPath)
 	assert.Nil(t, err)
 
@@ -19,17 +20,6 @@ func TestReadConfig(t *testing.T) {
 	assert.NotNil(t, configData)
 	assert.Nil(t, err)
 
-	assert.NotNil(t, configData.Default)
-	assert.Equal(t, "denyAll", configData.Default)
-
 	assert.NotNil(t, configData.ConnectedSets)
-	assert.Equal(t, 3, len((configData.ConnectedSets)))
-
-	for _, set := range configData.ConnectedSets {
-		if set.PocSelector == nil {
-			err = errors.New("no podname defined in pod selector")
-			assert.Nil(t, err)
-		}
-	}
-
+	assert.Equal(t, 2, len((configData.ConnectedSets)))
 }
