@@ -24,6 +24,9 @@ func init() {
 	// demo and test commands
 	rootCmd.AddCommand(greetingsCmd)
 	rootCmd.AddCommand(namespaceCmd)
+	rootCmd.AddCommand(listPolicyCmd)
+	rootCmd.AddCommand(deletePolicyCmd)
+	rootCmd.AddCommand(createPolicyCmd)
 
 	// core cli commands
 	rootCmd.AddCommand(applyCmd)
