@@ -12,14 +12,14 @@ import (
 // GetPods creates a clientset based on the k8s packages
 // Additionally this function reads all pods from the current kube context
 // It returns a list of coreV1 pods
-func GetPods(podName string) (*corev1.PodList, error){
+func GetPods(nsName string) (*corev1.PodList, error){
 
 	clientset, err := GetK8sClient()
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	pods, err := clientset.CoreV1().Pods(podName).List(context.Background(), metav1.ListOptions{})
+	pods, err := clientset.CoreV1().Pods(nsName).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		fmt.Println(err)
 	}
