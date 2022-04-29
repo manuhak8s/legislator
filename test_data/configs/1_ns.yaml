@@ -1,0 +1,7 @@
+connectedSets:
+  - name: set-1
+    matchLabels:
+      set: first
+  - name: set-2
+    matchLabels:
+      set: second

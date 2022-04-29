@@ -1,0 +1,9 @@
+connectedSets:
+  - name: set-1
+    podSelector:
+      matchLabels:
+        set: first
+  - name: set-2
+    podSelector:
+      matchLabels:
+        set: second
