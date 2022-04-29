@@ -1,19 +1,24 @@
 package config
 
 import (
-	"fmt"
+	_"fmt"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
 )
 
-const constitutionConfigName = ".constitution.yaml"
-
+// Config represents the data model of a config file for legislator
 type Config struct {
-    Default string `yaml:"default"`
+    //Default string `yaml:"default"`
+
+    // Datafield for the connected sets that should be created
     ConnectedSets ConnectedSets `yaml:"connectedSets"`
+
 }
 
+// ReadConfig reads a yaml configuration of the given path
+// A config instance has to be defined for reading the file
+// This function returns a config data model with all fields from the config file
 func (config *Config) ReadConfig(configPath string) (*Config, error) {
 
     yamlFile, err := ioutil.ReadFile(configPath)
@@ -27,19 +32,3 @@ func (config *Config) ReadConfig(configPath string) (*Config, error) {
 
     return config, nil
 }
-
-func (config *Config) GetDefaultPolicy() (string, error) {
-    defaultPolicy := config.Default
-    if defaultPolicy == "" {
-        return "", fmt.Errorf("no default policy found in constitution config")
-    }
-    
-    return defaultPolicy, nil
-}
-
-func (config *Config) GetConnectedSets() (ConnectedSets, error) {
-    connectedSets := config.ConnectedSets
-    
-    return connectedSets, nil
-}
-
