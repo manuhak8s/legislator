@@ -12,7 +12,7 @@ import (
 var c Config
 
 func TestReadV2Config(t *testing.T) {
-	configPath := "../../test_data/v2_data.yaml"
+	configPath := "../../test_data/configs/v2_data.yaml"
 	_, err := os.Stat(configPath)
 	assert.Nil(t, err)
 
