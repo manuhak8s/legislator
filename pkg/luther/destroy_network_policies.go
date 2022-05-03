@@ -7,6 +7,7 @@ import (
 
 	"github.com/manuhak8s/legislator/pkg/config"
 	"github.com/manuhak8s/legislator/pkg/k8s"
+	v1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -102,4 +103,34 @@ func ExecuteDestruction() {
 	if err != nil {
 		fmt.Print(err)
 	}
+}
+
+func DestroyAllNetworkPolicies() error {
+	var networkPolicies *v1.NetworkPolicyList
+
+	clientset, err := k8s.GetK8sClient()
+	if err != nil {
+		return err
+	}
+
+	namespaces, err := k8s.GetNamespaces()
+	if err != nil {
+		return err
+	}
+
+	for _, ns := range namespaces.Items {
+		networkPolicies, err = clientset.NetworkingV1().NetworkPolicies(ns.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			return err
+		}
+
+		for _, policy := range networkPolicies.Items {
+			err = clientset.NetworkingV1().NetworkPolicies(ns.Name).Delete(context.Background(), policy.Name, metav1.DeleteOptions{})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
