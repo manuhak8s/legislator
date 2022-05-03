@@ -1,0 +1,17 @@
+connectedSets:
+  - name: set-1
+    targetNamespaces:
+      matchLabels:
+        app: nodejs
+        ui: bootstrap
+    podSelector:
+      matchLabels:
+        role: ui
+        app: angular-frontend
+  - name: set-2
+    targetNamespaces: 
+      matchLabels:
+        db: influx
+    podSelector:
+      matchLabels:
+        role: backend
