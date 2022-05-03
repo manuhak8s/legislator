@@ -16,17 +16,35 @@ import (
 func InitV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
 	var config config.Config
 	var networkPolicies []v1.NetworkPolicy
+	var deploymentOpts []DeploymentOpts
 
-	configData, err := config.ReadConfig(configPath)
-	if err != nil {
-		return nil, err
+	kubernetesDefaultLabel := "kubernetes.io/metadata.name"
+	configData, _ := config.ReadConfig(configPath)
+	namespaces, _ := k8s.GetNamespaces()
+
+	for _, set := range configData.ConnectedSets {
+		for _, ns := range namespaces.Items {
+			for k1, v1 := range set.TargetNamespaces.MatchLabels {
+				for k2, v2 := range ns.Labels {
+					if k1 == k2 && v1 == v2 {
+						deploymentOpt := DeploymentOpts{
+							Namespace: ns.Name,
+							NamespaceLabels: ns.Labels,
+							ConnectedSet: set,
+						}
+
+						deploymentOpts = append(deploymentOpts, deploymentOpt)
+					}
+				}
+			}
+		}
 	}
 
-	connectedSets := configData.ConnectedSets
-
-	for _, set := range connectedSets {
+	for _, opt := range deploymentOpts {
+		opt.NamespaceLabels = RemoveLabel(opt.NamespaceLabels, kubernetesDefaultLabel)
+		
 		podSelector := metav1.LabelSelector{
-			MatchLabels: set.PodSelector.MatchLabels,
+			MatchLabels: opt.ConnectedSet.PodSelector.MatchLabels,
 		}
 
 		v1NetworkPolicy := &v1.NetworkPolicy{
@@ -35,13 +53,13 @@ func InitV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
 				Kind: "NetworkPolicy",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name: generateNetworkPolicyName(set.Name),
-				Namespace: "namespace-1",
-				Labels: set.PodSelector.MatchLabels,
+				Name: GenerateNetworkPolicyName(opt.ConnectedSet.Name),
+				Namespace: opt.Namespace,
+				Labels: opt.NamespaceLabels,
 			},
 			Spec: v1.NetworkPolicySpec{
 				PodSelector: metav1.LabelSelector{
-					MatchLabels: set.PodSelector.MatchLabels,
+					MatchLabels: opt.ConnectedSet.PodSelector.MatchLabels,
 				},
 				PolicyTypes: []v1.PolicyType{
 					"Ingress",
@@ -64,7 +82,7 @@ func InitV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
 	return networkPolicies, nil
 }
 
-func DeployV1NetworkPolicies(namespace string, configPath string) error {
+func DeployV1NetworkPolicies(configPath string) error {
 	clientset, err := k8s.GetK8sClient()
 	if err != nil {
 		return err
@@ -76,7 +94,7 @@ func DeployV1NetworkPolicies(namespace string, configPath string) error {
 	}
 
 	for _, policy := range networkPolicies {
-		_, err = clientset.NetworkingV1().NetworkPolicies(namespace).Create(context.Background(), &policy, metav1.CreateOptions{})
+		_, err = clientset.NetworkingV1().NetworkPolicies(policy.Namespace).Create(context.Background(), &policy, metav1.CreateOptions{})
 		if err != nil {
 			return err
 		}
@@ -85,93 +103,14 @@ func DeployV1NetworkPolicies(namespace string, configPath string) error {
 	return nil
 }
 
-func ExecuteLegislation() {
-	namespace := "namespace-1"
-	configPath := "/Users/manuelhaugg/legislator/test_data/configs/v2_data.yaml"
-	err := DeployV1NetworkPolicies(namespace, configPath)
+func ExecuteLegislation(configPath string) {
+	err := DeployV1NetworkPolicies(configPath)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-/*func DeployNetworkPolicies(configPath string) error{
-	var config config.Config
-
-	configData, err := config.ReadConfig(configPath)
-	if err != nil {
-		return err
-	}
-
-	networkPolicies, err := GetV1NetworkPolicies(configData.ConnectedSets)
-	if err != nil {
-		return err
-	}
-
-	clientset, err := k8s.GetK8sClient()
-	if err != nil {
-		return err
-	}
-
-	for _, policy := range networkPolicies{
-		CreateNetworkPolicy(clientset, &policy)
-	}
-
-	return nil
+func RemoveLabel(labels map[string]string, label string) map[string]string {
+	delete(labels,label)
+	return labels
 }
-
-func GetV1NetworkPolicies(sets config.ConnectedSets) ([]v1.NetworkPolicy, error){
-	var nwPolicies []v1.NetworkPolicy
-
-	for _, set := range sets {
-		podSelector := metav1.LabelSelector{
-			MatchLabels: set.PodSelector.MatchLabels,
-		}
-
-		nwPolicy := &v1.NetworkPolicy{
-			TypeMeta: metav1.TypeMeta{
-				APIVersion: "v1",
-				Kind:       "NetworkPolicy",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Name: generateNetworkPolicyName(set.Name),
-				Namespace: "namespace-1",
-				Labels:    set.PodSelector.MatchLabels,
-	
-			},
-			Spec: v1.NetworkPolicySpec{
-				PodSelector: metav1.LabelSelector{
-					MatchLabels: set.PodSelector.MatchLabels,
-				},
-				PolicyTypes: []v1.PolicyType{
-					"Ingress",
-				},
-				Ingress: []v1.NetworkPolicyIngressRule{
-					v1.NetworkPolicyIngressRule{
-						From: []v1.NetworkPolicyPeer{
-							v1.NetworkPolicyPeer{
-								PodSelector: &podSelector,
-							},
-						},
-					},
-				},
-			},
-		}
-
-		nwPolicies = append(nwPolicies, *nwPolicy)
-	}
-
-	if len(nwPolicies)<1 {
-		return nil, fmt.Errorf("error while creating v1 network policies: no translation occured")
-	}
-
-	return nwPolicies, nil
-}
-
-func CreateNetworkPolicy(clientSet *kubernetes.Clientset, nwPolicy *v1.NetworkPolicy) error {
-	_, err := clientSet.NetworkingV1().NetworkPolicies("namespace-1").Create(context.Background(), nwPolicy, metav1.CreateOptions{})
-	if err != nil {
-		return err
-	}
-	
-	return nil
-}*/
