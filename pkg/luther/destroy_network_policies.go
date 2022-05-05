@@ -11,14 +11,16 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func DetectConnectedSetNetworkPolicies(configPath string, namespace string) ([]string, error) {
+func DetectConnectedSetNetworkPolicies(configPath string) ([]string, []string, error) {
 	var config config.Config
 	var connectedSetNames []string
 	var networkPolicyNames []string
+	var targetNetworkPolicyNames []string
+	var targetNamespaces []string
 
 	configData, err := config.ReadConfig(configPath)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	connectedSets := configData.ConnectedSets
@@ -28,33 +30,48 @@ func DetectConnectedSetNetworkPolicies(configPath string, namespace string) ([]s
 	}
 
 	if len(connectedSetNames) < 1 {
-		return nil, fmt.Errorf("no connected set names detected at config: %s", configPath)
+		return nil, nil, fmt.Errorf("no connected set names detected at config: %s", configPath)
+	}
+
+	namespaces, err := k8s.GetNamespaces()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	for _, set := range configData.ConnectedSets {
+		for _, ns := range namespaces.Items {
+			for k1, v1 := range set.TargetNamespaces.MatchLabels {
+				for k2, v2 := range ns.Labels {
+					if k1 == k2 && v1 == v2 {
+						targetNamespaces = append(targetNamespaces, ns.Name)
+					}
+				}
+			}
+		}
 	}
 
 	clientset, err := k8s.GetK8sClient()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	networkPolicyList, err := clientset.NetworkingV1().NetworkPolicies(namespace).List(context.Background(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	if len(networkPolicyList.Items) < 1 {
-		return nil, fmt.Errorf("no network policies found hat namespace: %s", namespace)
-	}
-
-	for _, networkPolicy := range networkPolicyList.Items {
-		networkPolicyNames = append(networkPolicyNames, networkPolicy.Name)
-	}
+	for _, namespace := range targetNamespaces {
+		networkPolicyList, err := clientset.NetworkingV1().NetworkPolicies(namespace).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			return nil, nil, err
+		}
 	
-	targetNetworkPolicyNames, err := FilterNetworkPolicyNames(connectedSetNames, networkPolicyNames, namespace)
-	if err != nil {
-		return nil, err
+		for _, networkPolicy := range networkPolicyList.Items {
+			networkPolicyNames = append(networkPolicyNames, networkPolicy.Name)
+		}
+		
+		targetNetworkPolicyNames, err = FilterNetworkPolicyNames(connectedSetNames, networkPolicyNames, namespace)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
-	return targetNetworkPolicyNames, nil
+	return targetNetworkPolicyNames, k8s.GetNamespaceNames(namespaces), nil
 }
 
 func FilterNetworkPolicyNames(setNames []string, networkPolicyNames []string, namespace string,) ([]string, error){
@@ -75,31 +92,29 @@ func FilterNetworkPolicyNames(setNames []string, networkPolicyNames []string, na
 	return filteredNetworkPolicyNames, nil
 }
 
-func DestroyConnectedSetNetworkPolicies(namespace string, configPath string) error {
+func DestroyConnectedSetNetworkPolicies(configPath string) error {
 	clientset, err := k8s.GetK8sClient()
 	if err != nil {
 		return err
 	}
 
-	targetNetworkPolicyNames, err := DetectConnectedSetNetworkPolicies(configPath, namespace)
+	targetNetworkPolicyNames, namespaces, err := DetectConnectedSetNetworkPolicies(configPath)
 	if err != nil {
 		return err
 	}
 
 	for _, networkPolicy := range targetNetworkPolicyNames {
-		err = clientset.NetworkingV1().NetworkPolicies(namespace).Delete(context.Background(), networkPolicy, metav1.DeleteOptions{})
-		if err != nil {
-			return err
+		for _, namespace := range namespaces{
+			clientset.NetworkingV1().NetworkPolicies(namespace).Delete(context.Background(), networkPolicy, metav1.DeleteOptions{})
 		}
+
 	}
 
 	return nil
 }
 
-func ExecuteDestruction() {
-	namespace := "namespace-1"
-	configPath := "/Users/manuelhaugg/legislator/test_data/configs/v2_data.yaml"
-	err := DestroyConnectedSetNetworkPolicies(namespace, configPath)
+func ExecuteDestruction(configPath string) {
+	err := DestroyConnectedSetNetworkPolicies(configPath)
 	if err != nil {
 		fmt.Print(err)
 	}
