@@ -5,7 +5,7 @@ import (
 	v1 "k8s.io/api/networking/v1"
 )
 
-type DeploymentOpts struct {
+type LutherOpts struct {
 	Namespace string
 	NamespaceLabels map[string]string
 	ConnectedSet config.ConnectedSet
