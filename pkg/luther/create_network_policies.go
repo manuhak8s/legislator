@@ -16,18 +16,25 @@ import (
 func InitV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
 	var config config.Config
 	var networkPolicies []v1.NetworkPolicy
-	var deploymentOpts []DeploymentOpts
+	var deploymentOpts []LutherOpts
 
 	kubernetesDefaultLabel := "kubernetes.io/metadata.name"
-	configData, _ := config.ReadConfig(configPath)
-	namespaces, _ := k8s.GetNamespaces()
+	configData, err := config.ReadConfig(configPath)
+	if err != nil {
+		return nil, err
+	}
 
+	namespaces, err := k8s.GetNamespaces()
+	if err != nil {
+		return nil, err
+	}
+	
 	for _, set := range configData.ConnectedSets {
 		for _, ns := range namespaces.Items {
 			for k1, v1 := range set.TargetNamespaces.MatchLabels {
 				for k2, v2 := range ns.Labels {
 					if k1 == k2 && v1 == v2 {
-						deploymentOpt := DeploymentOpts{
+						deploymentOpt := LutherOpts{
 							Namespace: ns.Name,
 							NamespaceLabels: ns.Labels,
 							ConnectedSet: set,
