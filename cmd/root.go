@@ -31,4 +31,8 @@ func init() {
 	// core cli commands
 	rootCmd.AddCommand(applyCmd)
 	rootCmd.AddCommand(destroyCmd)
+
+	// flags
+	applyCmd.PersistentFlags().String("path", "", "Path to an existent config file.")
+	destroyCmd.PersistentFlags().String("path", "", "Path to an existent config file.")
 }
