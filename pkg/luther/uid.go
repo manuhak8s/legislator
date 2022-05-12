@@ -17,7 +17,7 @@ func validateUID(uid types.UID) types.UID{
 	return uid
 }
 
-func generateNetworkPolicyName(setName string) string{
+func GenerateNetworkPolicyName(setName string) string{
 	uid := uuid.NewUUID()
 
 	return setName + "-" + string(validateUID(uid))

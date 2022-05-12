@@ -7,4 +7,18 @@ type ConnectedSets []struct {
 
 	// Selector for selecting kubernetes pods and assigns them to a set
 	PodSelector PodSelector `yaml:"podSelector"`
+
+	// Collection of namespace labels for deployment destination
+	TargetNamespaces TargetNamespaces `yaml:"targetNamespaces"`
+}
+
+type ConnectedSet struct {
+		// Name of the connected set represented by a string value
+		Name string `yaml:"name"`
+
+		// Selector for selecting kubernetes pods and assigns them to a set
+		PodSelector PodSelector `yaml:"podSelector"`
+	
+		// Collection of namespace labels for deployment destination
+		TargetNamespaces TargetNamespaces `yaml:"targetNamespaces"`
 }
