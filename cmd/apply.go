@@ -17,7 +17,6 @@ var applyCmd = &cobra.Command{
 
 func apply(ccmd *cobra.Command, args []string) {
 	configPath, err := ccmd.Flags().GetString("path")
-	print("config path: " + configPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Unknown error occured while executing apply command.")
 		return
