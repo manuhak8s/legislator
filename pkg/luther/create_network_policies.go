@@ -6,6 +6,7 @@ import (
 
 	"github.com/manuhak8s/legislator/pkg/config"
 	"github.com/manuhak8s/legislator/pkg/k8s"
+	"github.com/manuhak8s/legislator/pkg/logger"
 	
 	v1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,14 +17,19 @@ import (
 // process for creating connected sets based on the given config path
 // and creates a kubernetes clientset.
 func ExecuteLegislation(configPath string) {
+	logger.TriggerOutput("loading", "executing legislation of config file: " + configPath)
 	clientset, err := k8s.GetK8sClient()
 	if err != nil {
-		fmt.Print(err)
+		logger.TriggerOutput("fail", err.Error())
 	}
 
 	err = DeployV1NetworkPolicies(configPath, clientset)
 	if err != nil {
-		fmt.Println(err)
+		logger.TriggerOutput("fail", err.Error())
+	}
+	
+	if err == nil {
+		logger.TriggerOutput("success", "connected sets based on config file successfully deployed as network policies")
 	}
 }
 
