@@ -12,6 +12,7 @@ type ConnectedSets []struct {
 	TargetNamespaces TargetNamespaces `yaml:"targetNamespaces"`
 }
 
+// ConnectedSet represents a single instance struct of a set
 type ConnectedSet struct {
 		// Name of the connected set represented by a string value
 		Name string `yaml:"name"`
