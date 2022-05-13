@@ -30,3 +30,18 @@ func destroy(ccmd *cobra.Command, args []string) {
 		return
 	}
 }
+
+var destroyAllCmd = &cobra.Command{
+	Use: "all",
+	Short: "Removes all network policies from the kubernetes cluster.",
+	Long: "All network policies become removed from the kubernetes cluster.",
+	Run: destroyAll,
+}
+
+func destroyAll(ccmd *cobra.Command, args []string) {
+	luther.DestroyAllNetworkPolicies()
+}
+
+func init() {
+	destroyCmd.AddCommand(destroyAllCmd)
+}
