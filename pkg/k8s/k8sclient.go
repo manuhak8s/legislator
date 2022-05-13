@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -9,14 +10,31 @@ import (
 )
 
 func GetK8sClient() (*kubernetes.Clientset, error) {
-	home, exists := os.LookupEnv("Home")
-	if !exists {
-		home, _ = os.UserHomeDir()
+	var clientset *kubernetes.Clientset
+	kubeconfigENV := os.Getenv("KUBECONFIG")
+	if kubeconfigENV == "" {
+
+		home, exists := os.LookupEnv("Home")
+		if !exists {
+			home, _ = os.UserHomeDir()
+		}
+	
+		kubeConfigPath := filepath.Join(home, ".kube", "config")
+	
+		clientset, _ = initClientset(kubeConfigPath)
+	} else {
+		clientset, _ = initClientset(kubeconfigENV)
 	}
 
-	kubeConfigPath := filepath.Join(home, ".kube", "config")
+	if clientset == nil {
+		return nil, fmt.Errorf("unknown error while creating kubernetes client: please try again")
+	}
 
-	kubeConfig, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	return clientset, nil
+}
+
+func initClientset(kubeconfigPath string) (*kubernetes.Clientset, error){
+	kubeConfig, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 	if err != nil {
 		return nil, err
 	}
