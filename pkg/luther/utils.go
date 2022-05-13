@@ -22,3 +22,8 @@ func GenerateNetworkPolicyName(setName string) string{
 
 	return setName + "-" + string(validateUID(uid))
 }
+
+func RemoveLabel(labels map[string]string, label string) map[string]string {
+	delete(labels,label)
+	return labels
+}
