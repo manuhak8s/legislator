@@ -7,6 +7,7 @@ import (
 
 	"github.com/manuhak8s/legislator/pkg/config"
 	"github.com/manuhak8s/legislator/pkg/k8s"
+	"github.com/manuhak8s/legislator/pkg/logger"
 	
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/networking/v1"
@@ -18,14 +19,20 @@ import (
 // process for removing network policies based on the given config file
 // and additionally creates a kubernetes clientset.
 func ExecuteDestruction(configPath string) {
+	logger.TriggerOutput("loading", "executing destruction of config file: " + configPath)
+	
 	clientset, err := k8s.GetK8sClient()
 	if err != nil {
-		fmt.Print(err)
+		logger.TriggerOutput("fail", err.Error())
 	}
 
 	err = DestroyConnectedSetNetworkPolicies(configPath, clientset)
 	if err != nil {
-		fmt.Print(err)
+		logger.TriggerOutput("fail", err.Error())
+	}
+
+	if err == nil {
+		logger.TriggerOutput("success", "connected sets based on config file successfully removed")
 	}
 }
 
