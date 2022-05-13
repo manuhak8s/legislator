@@ -9,25 +9,27 @@ import (
 	
 	v1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 // ExecuteLegislation is called by the apply command an executes the
 // process for creating connected sets based on the given config path
+// and creates a kubernetes clientset.
 func ExecuteLegislation(configPath string) {
-	err := DeployV1NetworkPolicies(configPath)
+	clientset, err := k8s.GetK8sClient()
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	err = DeployV1NetworkPolicies(configPath, clientset)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-// DeployV1NetworkPolicies creates a kubernetes clientset and deploys the 
-// network policies based on their initialization with the networking v1 interface
-func DeployV1NetworkPolicies(configPath string) error {
-	clientset, err := k8s.GetK8sClient()
-	if err != nil {
-		return err
-	}
-
+// DeployV1NetworkPolicies deploys the network policies based on their initialization
+// with the networking v1 interface by using the kubernetes clientset.
+func DeployV1NetworkPolicies(configPath string, clientset *kubernetes.Clientset) error {
 	networkPolicies, err := InitV1NetworkPolicies(configPath)
 	if err != nil {
 		return err
