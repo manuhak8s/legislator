@@ -8,4 +8,4 @@ Synonym: lawmaker, parliamentarian, lawgiver
 
 
 ## test download
-[legislator]({{file name='legislator'}})
+[legislator](https://github.com/manuhak8s/legislator/blob/validate-config/legislator)
