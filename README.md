@@ -9,3 +9,4 @@ Synonym: lawmaker, parliamentarian, lawgiver
 
 ## test download
 [legislator](https://github.com/manuhak8s/legislator/blob/validate-config/legislator)
+[legislator2] (legislator)
