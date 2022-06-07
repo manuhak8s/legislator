@@ -47,7 +47,7 @@ func InitLutherOpts(connectedSets config.ConnectedSets, namespaces *corev1.Names
 
 func ValidateLutherOpts(opts []LutherOpts) error{
 	if len(opts) < 1 {
-		return fmt.Errorf("no items initialized in lutherOpts: empty slice")
+		return fmt.Errorf("no resources found at current kube context with matching labeling: cannot create network policies based on defined connected sets, for further information read the legislator instructions")
 	}
 
 	for _, opt := range opts {

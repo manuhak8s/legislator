@@ -5,3 +5,7 @@ A legislator is an individual concerned with the making or enactment of laws; ad
 Synonym: lawmaker, parliamentarian, lawgiver
 
 **legislator** is an CLI for managing Kubernetes Network Policies. 
+
+
+## test download
+[legislator](https://github.com/manuhak8s/legislator/blob/validate-config/legislator)
