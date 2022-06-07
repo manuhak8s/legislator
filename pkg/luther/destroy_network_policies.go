@@ -73,34 +73,13 @@ func DetectConnectedSetTargets(configPath string, clientset *kubernetes.Clientse
 		return nil, nil, err
 	}
 
-	targetNetworkPolicyNames, err := GetTargetNetworkPolicyNames(targetNamespaces, clientset, configData)
+	targetNetworkPolicyNames, err := GetTargetNetworkPolicyNames(targetNamespaces, clientset, configPath)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	return targetNetworkPolicyNames, k8s.GetNamespaceNames(namespaces), nil
 }
-
-// FilterNetworkPolicyNames filters network policies with the matching naming convention of a connected set
-// inside a namespace and returns a list of the results.
-func FilterNetworkPolicyNames(setNames []string, networkPolicyNames []string, namespace string,) ([]string, error){
-	var filteredNetworkPolicyNames []string
-
-	for _, networkPolicyName := range networkPolicyNames {
-		for _, setName := range setNames {
-			if strings.HasPrefix(networkPolicyName, setName) {
-				filteredNetworkPolicyNames = append(filteredNetworkPolicyNames, networkPolicyName)
-			}
-		}
-	}
-
-	if len(filteredNetworkPolicyNames) < 1 {
-		return nil, fmt.Errorf("no networkpolicies with matching connected sets found in current namespace: %s", namespace)
-	}
-
-	return filteredNetworkPolicyNames, nil
-}
-
 
 // GetTargetNamespaceNames detects target namespaces by matching equal labels of a connected set targetNamespace field
 // labels and namespace labels. It returns a string list of equalitites.
@@ -128,15 +107,11 @@ func GetTargetNamespaceNames(connectedSets config.ConnectedSets, namespaces *cor
 
 // GetTargetNetworkPolicyNames detects target network policies from all namespaces by using a clientset
 // and filters by facing them against the defined connected sets from the given config file.
-func GetTargetNetworkPolicyNames(namespaceNames []string, clientset *kubernetes.Clientset, configData *config.Config) ([]string, error) {
+func GetTargetNetworkPolicyNames(namespaceNames []string, clientset *kubernetes.Clientset, configPath string) ([]string, error) {
 	var targetNetworkPolicyNames []string
 	var networkPolicyNames []string
-	var connectedSetNames []string
 
-	for _, set := range configData.ConnectedSets {
-		connectedSetNames = append(connectedSetNames, set.Name)
-	}
-	
+	logger.TriggerOutput("loading", "... deleting network policies ...")
 	for _, namespace := range namespaceNames {
 		networkPolicyList, err := clientset.NetworkingV1().NetworkPolicies(namespace).List(context.Background(), metav1.ListOptions{})
 		if err != nil {
@@ -147,13 +122,31 @@ func GetTargetNetworkPolicyNames(namespaceNames []string, clientset *kubernetes.
 			networkPolicyNames = append(networkPolicyNames, networkPolicy.Name)
 		}
 		
-		targetNetworkPolicyNames, err = FilterNetworkPolicyNames(connectedSetNames, networkPolicyNames, namespace)
+		targetNetworkPolicyNames, err = FilterNetworkPolicyNames(configPath, networkPolicyNames, namespace)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return targetNetworkPolicyNames, nil
+}
+
+// FilterNetworkPolicyNames filters network policies with the matching naming convention of a connected set
+// inside a namespace and returns a list of the results.
+func FilterNetworkPolicyNames(configPath string, networkPolicyNames []string, namespace string,) ([]string, error){
+	var filteredNetworkPolicyNames []string
+
+	for _, networkPolicyName := range networkPolicyNames {
+		if strings.HasPrefix(networkPolicyName, fileNameWithoutExtSliceNotation(configPath)) {
+			filteredNetworkPolicyNames = append(filteredNetworkPolicyNames, networkPolicyName)
+		}
+	}
+
+	if len(filteredNetworkPolicyNames) < 1 {
+		return nil, fmt.Errorf("no networkpolicies with matching connected sets found in current namespace: %s", namespace)
+	}
+
+	return filteredNetworkPolicyNames, nil
 }
 
 // DestroyAllNetworkPolicies removes all network policies from a kubernetes cluster.

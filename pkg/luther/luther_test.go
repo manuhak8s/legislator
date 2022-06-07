@@ -8,7 +8,7 @@ import (
 )
 
 const configPath = "../../test_data/configs/v2_data.yaml"
-const namespace = "namespace-1"
+//const namespace = "namespace-1"
 
 func TestInitV1NetworkPolicies(t *testing.T) {
 
@@ -26,7 +26,7 @@ func TestInitV1NetworkPolicies(t *testing.T) {
 	}
 }
 
-func TestFilterNetworkPolicyNames(t *testing.T) {
+/*func TestFilterNetworkPolicyNames(t *testing.T) {
 
 	setNames := []string{
 		"set-1", 
@@ -55,4 +55,4 @@ func TestFilterNetworkPolicyNames(t *testing.T) {
 		}
 	}
 	assert.Equal(t, found, false)
-}
+}*/

@@ -72,7 +72,7 @@ func InitV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
 		return nil, err
 	}
 
-	networkPolicies, err := CreateV1NetworkPolicies(deploymentOpts)
+	networkPolicies, err := CreateV1NetworkPolicies(deploymentOpts, configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,8 @@ func InitV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
 // CreateV1NetworkPolicies creates network policies based on the v1 networking package
 // and given deployment information.
 // It returns a list of v1.NetworkPolicy.
-func CreateV1NetworkPolicies(lutherOpts []LutherOpts) ([]v1.NetworkPolicy, error) {
+func CreateV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.NetworkPolicy, error) {
+	logger.TriggerOutput("loading", "... creating network policies ...")
 	var networkPolicies []v1.NetworkPolicy
 	kubernetesDefaultLabel := "kubernetes.io/metadata.name"
 
@@ -100,7 +101,7 @@ func CreateV1NetworkPolicies(lutherOpts []LutherOpts) ([]v1.NetworkPolicy, error
 				Kind: "NetworkPolicy",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name: GenerateNetworkPolicyName(opt.ConnectedSet.Name),
+				Name: GenerateNetworkPolicyName(configPath, opt.ConnectedSet.Name),
 				Namespace: opt.Namespace,
 				Labels: opt.NamespaceLabels,
 			},
