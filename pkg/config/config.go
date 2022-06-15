@@ -66,14 +66,18 @@ func ValidateLegislatorConfig(config *Config, configPath string) error {
 }
 
 func checkForDuplicates(stringSlice []string) error {
-    allKeys := make(map[string]bool)
-    for _, item := range stringSlice {
-        _, exist := allKeys[item]
-        if exist {
-            return fmt.Errorf("duplicate connected set name found: %s - duplicates are not allowed as set names, for further information read the legislator instructions", item)
+    dupcount := 0
+    for i := 0; i < len(stringSlice); i++ {
+        for j := i + 1; j < len(stringSlice); j++ {
+            if stringSlice[i] == stringSlice[j] {
+                dupcount++
+                break
+            }
         }
     }
-
+    if dupcount != 0 {
+        return fmt.Errorf("duplicate connected set name found: duplicates are not allowed as set names, for further information read the legislator instructions")
+    }
     return nil
 }
 
