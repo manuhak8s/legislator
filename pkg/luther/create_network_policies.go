@@ -3,6 +3,7 @@ package luther
 import (
 	"context"
 	"fmt"
+	_"encoding/json"
 
 	"github.com/manuhak8s/legislator/pkg/config"
 	"github.com/manuhak8s/legislator/pkg/k8s"
@@ -90,10 +91,7 @@ func CreateV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.N
 
 	for _, opt := range lutherOpts {
 		opt.NamespaceLabels = RemoveLabel(opt.NamespaceLabels, kubernetesDefaultLabel)
-		
-		podSelector := metav1.LabelSelector{
-			MatchLabels: opt.ConnectedSet.PodSelector.MatchLabels,
-		}
+		networkPolicyPeers := initV1NetworkPolicyPeers(opt)
 
 		v1NetworkPolicy := &v1.NetworkPolicy{
 			TypeMeta: metav1.TypeMeta{
@@ -112,17 +110,16 @@ func CreateV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.N
 				PolicyTypes: []v1.PolicyType{
 					"Ingress",
 				},
-				Ingress: []v1.NetworkPolicyIngressRule{
-					v1.NetworkPolicyIngressRule{
-						From: []v1.NetworkPolicyPeer{
-							v1.NetworkPolicyPeer{
-								PodSelector: &podSelector,
-							},
-						},
-					},
-				},
+				Ingress: []v1.NetworkPolicyIngressRule{},
 			},
 		}
+
+		networkPolicyIngressRule := v1.NetworkPolicyIngressRule{
+			From: []v1.NetworkPolicyPeer{},
+		}
+		networkPolicyIngressRule.From = append(networkPolicyIngressRule.From, networkPolicyPeers...)
+
+		v1NetworkPolicy.Spec.Ingress = append(v1NetworkPolicy.Spec.Ingress, networkPolicyIngressRule)
 
 		networkPolicies = append(networkPolicies, *v1NetworkPolicy)
 	}
@@ -132,4 +129,44 @@ func CreateV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.N
 	}
 
 	return networkPolicies, nil
+}
+
+func initV1NetworkPolicyPeers(option LutherOpts) []v1.NetworkPolicyPeer {
+	var networkPolicyPeers []v1.NetworkPolicyPeer
+	
+	defaultPodSelector := metav1.LabelSelector{
+		MatchLabels: option.ConnectedSet.PodSelector.MatchLabels,
+	}
+
+	defaultNetworkPolicyPeer := v1.NetworkPolicyPeer {
+		PodSelector: &defaultPodSelector,
+	}
+	networkPolicyPeers = append(networkPolicyPeers, defaultNetworkPolicyPeer)
+
+
+	if len(option.ConnectedSet.TargetNamespaces.MatchLabels) > 1 {
+		for key, value := range option.ConnectedSet.TargetNamespaces.MatchLabels {
+			for nsKey, nsValue := range option.NamespaceLabels{
+				if key != nsKey && value != nsValue {
+					podSelector := metav1.LabelSelector{
+						MatchLabels: option.ConnectedSet.PodSelector.MatchLabels,
+					}	
+					namespaceSelector := metav1.LabelSelector {
+						MatchLabels: map[string]string{
+							key:value,					
+						},
+					}
+				
+					networkPolicyPeer := v1.NetworkPolicyPeer {
+						PodSelector: &podSelector,
+						NamespaceSelector: &namespaceSelector,
+					}
+				
+					networkPolicyPeers = append(networkPolicyPeers, networkPolicyPeer)	
+				}
+			}		
+		}
+	}
+
+	return networkPolicyPeers
 }
