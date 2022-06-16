@@ -1,0 +1,9 @@
+connectedSets:
+  - name: set-1
+    targetNamespaces:
+      matchLabels:
+        project: dev
+        db: influx
+    podSelector:
+      matchLabels:
+        layer: first
