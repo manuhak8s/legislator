@@ -109,8 +109,10 @@ func CreateV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.N
 				},
 				PolicyTypes: []v1.PolicyType{
 					"Ingress",
+					"Egress",
 				},
 				Ingress: []v1.NetworkPolicyIngressRule{},
+				Egress: []v1.NetworkPolicyEgressRule{},
 			},
 		}
 
@@ -118,8 +120,13 @@ func CreateV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.N
 			From: []v1.NetworkPolicyPeer{},
 		}
 		networkPolicyIngressRule.From = append(networkPolicyIngressRule.From, networkPolicyPeers...)
-
 		v1NetworkPolicy.Spec.Ingress = append(v1NetworkPolicy.Spec.Ingress, networkPolicyIngressRule)
+
+		networkPolicyEgressRule := v1.NetworkPolicyEgressRule{
+			To: []v1.NetworkPolicyPeer{},
+		}
+		networkPolicyEgressRule.To = append(networkPolicyEgressRule.To, networkPolicyPeers...)
+		v1NetworkPolicy.Spec.Egress = append(v1NetworkPolicy.Spec.Egress, networkPolicyEgressRule)
 
 		networkPolicies = append(networkPolicies, *v1NetworkPolicy)
 	}
