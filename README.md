@@ -87,7 +87,7 @@ The current release contains an integrationtest based on the latest binary of le
 * kubectl and kubens
 * helm
 
-![alt text](https://github.com/manuhak8s/legislator/blob/main/image.jpg?raw=true)
+![alt text](https://github.com/manuhak8s/legislator/blob/main/readme_res/pic/summary_integration_test.png)
 
 ## Notes - FAQs
 * every network policy is associated to its config file - that means by executing the destroy command, every network policy based on the config will be deleted from the current kubecontext
