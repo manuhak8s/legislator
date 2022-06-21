@@ -15,9 +15,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-// ExecuteDestruction is called by the destroy command an executes the
+// ExecuteDestruction is called by the destroy command and executes the
 // process for removing network policies based on the given config file
-// and additionally creates a kubernetes clientset.
+// with a kubernetes clientset.
 func ExecuteDestruction(configPath string) {
 	logger.TriggerOutput("loading", "executing destruction of config file: " + configPath)
 	
@@ -26,7 +26,7 @@ func ExecuteDestruction(configPath string) {
 		logger.TriggerOutput("fail", err.Error())
 	}
 
-	err = DestroyConnectedSetNetworkPolicies(configPath, clientset)
+	err = destroyConnectedSetNetworkPolicies(configPath, clientset)
 	if err != nil {
 		logger.TriggerOutput("fail", err.Error())
 	}
@@ -36,10 +36,10 @@ func ExecuteDestruction(configPath string) {
 	}
 }
 
-// DestroyConnectedSetNetworkPolicies detects and destroys the target network policies 
+// destroyConnectedSetNetworkPolicies detects and destroys the target network policies 
 // based on the given config file with a given clientset.
-func DestroyConnectedSetNetworkPolicies(configPath string, clientset *kubernetes.Clientset) error {
-	targetNetworkPolicyNames, namespaces, err := DetectConnectedSetTargets(configPath, clientset)
+func destroyConnectedSetNetworkPolicies(configPath string, clientset *kubernetes.Clientset) error {
+	targetNetworkPolicyNames, namespaces, err := detectConnectedSetTargets(configPath, clientset)
 	if err != nil {
 		return err
 	}
@@ -54,9 +54,9 @@ func DestroyConnectedSetNetworkPolicies(configPath string, clientset *kubernetes
 	return nil
 }
 
-// DetectConnectedSetTargets detects the target network policies and namespaces 
+// detectConnectedSetTargets detects the target network policies and namespaces 
 // based on the given config file with the defined connected sets.
-func DetectConnectedSetTargets(configPath string, clientset *kubernetes.Clientset) ([]string, []string, error) {
+func detectConnectedSetTargets(configPath string, clientset *kubernetes.Clientset) ([]string, []string, error) {
 	var config config.Config
 	configData, err := config.ReadConfig(configPath)
 	if err != nil {
@@ -68,12 +68,12 @@ func DetectConnectedSetTargets(configPath string, clientset *kubernetes.Clientse
 		return nil, nil, err
 	}
 
-	targetNamespaces, err := GetTargetNamespaceNames(configData.ConnectedSets, namespaces)
+	targetNamespaces, err := getTargetNamespaceNames(configData.ConnectedSets, namespaces)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	targetNetworkPolicyNames, err := GetTargetNetworkPolicyNames(targetNamespaces, clientset, configPath)
+	targetNetworkPolicyNames, err := getTargetNetworkPolicyNames(targetNamespaces, clientset, configPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,9 +81,9 @@ func DetectConnectedSetTargets(configPath string, clientset *kubernetes.Clientse
 	return targetNetworkPolicyNames, k8s.GetNamespaceNames(namespaces), nil
 }
 
-// GetTargetNamespaceNames detects target namespaces by matching equal labels of a connected set targetNamespace field
+// getTargetNamespaceNames detects target namespaces by matching equal labels of a connected set targetNamespace field
 // labels and namespace labels. It returns a string list of equalitites.
-func GetTargetNamespaceNames(connectedSets config.ConnectedSets, namespaces *corev1.NamespaceList) ([]string, error){
+func getTargetNamespaceNames(connectedSets config.ConnectedSets, namespaces *corev1.NamespaceList) ([]string, error){
 	var targetNamespaces []string
 	for _, set := range connectedSets {
 		for _, ns := range namespaces.Items {
@@ -105,9 +105,9 @@ func GetTargetNamespaceNames(connectedSets config.ConnectedSets, namespaces *cor
 }
 
 
-// GetTargetNetworkPolicyNames detects target network policies from all namespaces by using a clientset
+// getTargetNetworkPolicyNames detects target network policies from all namespaces by using a clientset
 // and filters by facing them against the defined connected sets from the given config file.
-func GetTargetNetworkPolicyNames(namespaceNames []string, clientset *kubernetes.Clientset, configPath string) ([]string, error) {
+func getTargetNetworkPolicyNames(namespaceNames []string, clientset *kubernetes.Clientset, configPath string) ([]string, error) {
 	var targetNetworkPolicyNames []string
 	var networkPolicyNames []string
 
@@ -122,7 +122,7 @@ func GetTargetNetworkPolicyNames(namespaceNames []string, clientset *kubernetes.
 			networkPolicyNames = append(networkPolicyNames, networkPolicy.Name)
 		}
 		
-		targetNetworkPolicyNames, err = FilterNetworkPolicyNames(configPath, networkPolicyNames, namespace)
+		targetNetworkPolicyNames, err = filterNetworkPolicyNames(configPath, networkPolicyNames, namespace)
 		if err != nil {
 			return nil, err
 		}
@@ -131,9 +131,9 @@ func GetTargetNetworkPolicyNames(namespaceNames []string, clientset *kubernetes.
 	return targetNetworkPolicyNames, nil
 }
 
-// FilterNetworkPolicyNames filters network policies with the matching naming convention of a connected set
+// filterNetworkPolicyNames filters network policies with the matching naming convention of a connected set
 // inside a namespace and returns a list of the results.
-func FilterNetworkPolicyNames(configPath string, networkPolicyNames []string, namespace string,) ([]string, error){
+func filterNetworkPolicyNames(configPath string, networkPolicyNames []string, namespace string,) ([]string, error){
 	var filteredNetworkPolicyNames []string
 
 	for _, networkPolicyName := range networkPolicyNames {

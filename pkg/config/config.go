@@ -32,7 +32,7 @@ func (config *Config) ReadConfig(configPath string) (*Config, error) {
     }
 
     logger.TriggerOutput("loading", "... validating config file ... ")
-    err = ValidateLegislatorConfig(config, configPath)
+    err = validateLegislatorConfig(config, configPath)
     if err != nil {
         return nil, err
     }
@@ -40,7 +40,7 @@ func (config *Config) ReadConfig(configPath string) (*Config, error) {
     return config, nil
 }
 
-func ValidateLegislatorConfig(config *Config, configPath string) error {
+func validateLegislatorConfig(config *Config, configPath string) error {
     if config.ConnectedSets == nil {
         return fmt.Errorf("error: no connectedSets field defined at config: %s - please read the legislator instructions for further information", configPath)
     }

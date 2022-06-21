@@ -24,7 +24,7 @@ func TestValidateLegislatorConfig(t *testing.T) {
 	assert.NotNil(t, validConfigData)
 	assert.Nil(t, err)
 
-	err = ValidateLegislatorConfig(validConfigData, validTestConfigPath)
+	err = validateLegislatorConfig(validConfigData, validTestConfigPath)
 	assert.Nil(t, err)
 
 	unvalidConfigData, err := c.ReadConfig(unvalidTestConfigPath)
