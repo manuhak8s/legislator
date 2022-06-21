@@ -64,6 +64,7 @@ In this example two sets are defined as **first-layer-set** and **second-layer-s
 
 ## commands and flags 
 Following commands and flags are executable by using the current release of legislator CLI:
+
 command/flag | example | description
 apply  | legislator apply --path=<config path> | Creates network policies based on the given config path to current kubecontext
 destroy  | legislator destroy --path=<config path> | Removes network policies based on the given config path from current kubecontext
