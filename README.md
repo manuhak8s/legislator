@@ -48,6 +48,7 @@ connectedSets represents a list of connected amounts that can communicate to eac
 In this example two sets are defined as **first-layer-set** and **second-layer-set**. 
 * The first-layer-set adresses all namespaces with the labeling **project: dev** and creates network policies with associated ingress rules for all pods that are containing the labeling **set: first**.
 * The second-layer-set adresses all namespaces with the labeling **project: prod** and creates network policies with associated ingress rules for all pods that are containing the labeling **set: second**.
+
 **-->** That means that two isolated quantities of pods were created after an executed legislator deployment
 
 ## legislator binary download
