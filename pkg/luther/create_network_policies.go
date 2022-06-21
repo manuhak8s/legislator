@@ -14,9 +14,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-// ExecuteLegislation is called by the apply command an executes the
+// ExecuteLegislation is called by the apply command and executes the
 // process for creating connected sets based on the given config path
-// and creates a kubernetes clientset.
+// with a kubernetes clientset. Additionally a log level based on the 
+// error state will be triggered.
 func ExecuteLegislation(configPath string) {
 	logger.TriggerOutput("loading", "executing legislation of config file: " + configPath)
 	clientset, err := k8s.GetK8sClient()
@@ -24,7 +25,7 @@ func ExecuteLegislation(configPath string) {
 		logger.TriggerOutput("fail", err.Error())
 	}
 
-	err = DeployV1NetworkPolicies(configPath, clientset)
+	err = deployV1NetworkPolicies(configPath, clientset)
 	if err != nil {
 		logger.TriggerOutput("fail", err.Error())
 	}
@@ -34,10 +35,10 @@ func ExecuteLegislation(configPath string) {
 	}
 }
 
-// DeployV1NetworkPolicies deploys the network policies based on their initialization
+// deployV1NetworkPolicies deploys the network policies based on their initialization
 // with the networking v1 interface by using the kubernetes clientset.
-func DeployV1NetworkPolicies(configPath string, clientset *kubernetes.Clientset) error {
-	networkPolicies, err := InitV1NetworkPolicies(configPath)
+func deployV1NetworkPolicies(configPath string, clientset *kubernetes.Clientset) error {
+	networkPolicies, err := initV1NetworkPolicies(configPath)
 	if err != nil {
 		return err
 	}
@@ -52,10 +53,10 @@ func DeployV1NetworkPolicies(configPath string, clientset *kubernetes.Clientset)
 	return nil
 }
 
-// InitV1NetworkPolicies initialized network policies based on the given config. 
+// initV1NetworkPolicies initializes network policies based on the given config. 
 // It creates the instance of the config and transfers the deployment information
 // to the creation process of the network policies.
-func InitV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
+func initV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
 	var config config.Config
 
 	configData, err := config.ReadConfig(configPath)
@@ -73,7 +74,7 @@ func InitV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
 		return nil, err
 	}
 
-	networkPolicies, err := CreateV1NetworkPolicies(deploymentOpts, configPath)
+	networkPolicies, err := createV1NetworkPolicies(deploymentOpts, configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -81,16 +82,16 @@ func InitV1NetworkPolicies(configPath string) ([]v1.NetworkPolicy, error) {
 	return networkPolicies, nil
 }
 
-// CreateV1NetworkPolicies creates network policies based on the v1 networking package
-// and given deployment information.
+// createV1NetworkPolicies creates network policies based on the v1 networking package
+// and given deployment information of the initialized luhterOpts structs. 
 // It returns a list of v1.NetworkPolicy.
-func CreateV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.NetworkPolicy, error) {
+func createV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.NetworkPolicy, error) {
 	logger.TriggerOutput("loading", "... creating network policies ...")
 	var networkPolicies []v1.NetworkPolicy
 	kubernetesDefaultLabel := "kubernetes.io/metadata.name"
 
 	for _, opt := range lutherOpts {
-		opt.NamespaceLabels = RemoveLabel(opt.NamespaceLabels, kubernetesDefaultLabel)
+		opt.NamespaceLabels = removeLabel(opt.NamespaceLabels, kubernetesDefaultLabel)
 		networkPolicyPeers := initV1NetworkPolicyPeers(opt)
 
 		v1NetworkPolicy := &v1.NetworkPolicy{
@@ -99,7 +100,7 @@ func CreateV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.N
 				Kind: "NetworkPolicy",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name: GenerateNetworkPolicyName(configPath, opt.ConnectedSet.Name),
+				Name: generateNetworkPolicyName(configPath, opt.ConnectedSet.Name),
 				Namespace: opt.Namespace,
 				Labels: opt.NamespaceLabels,
 			},
@@ -131,6 +132,9 @@ func CreateV1NetworkPolicies(lutherOpts []LutherOpts, configPath string) ([]v1.N
 	return networkPolicies, nil
 }
 
+// initNetworkPolicyPeers initialized v1 NetworkPolicyPeers for defining 
+// rules of the ingress and egress handling. The labels will be transfered to the peers
+// based on given LutherOpts.
 func initV1NetworkPolicyPeers(option LutherOpts) []v1.NetworkPolicyPeer {
 	var networkPolicyPeers []v1.NetworkPolicyPeer
 	
@@ -142,7 +146,6 @@ func initV1NetworkPolicyPeers(option LutherOpts) []v1.NetworkPolicyPeer {
 		PodSelector: &defaultPodSelector,
 	}
 	networkPolicyPeers = append(networkPolicyPeers, defaultNetworkPolicyPeer)
-
 
 	if len(option.ConnectedSet.TargetNamespaces.MatchLabels) > 1 {
 		for key, value := range option.ConnectedSet.TargetNamespaces.MatchLabels {

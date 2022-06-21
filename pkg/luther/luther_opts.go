@@ -9,6 +9,9 @@ import (
 	v1 "k8s.io/api/networking/v1"
 )
 
+// The LutherOpts struct contains fields for a more efficient creation of
+// k8s network policies based of the networking v1 package. A single instance
+// the namespacename and its labels with the ConnectedSets and their network polices.
 type LutherOpts struct {
 	Namespace string
 	NamespaceLabels map[string]string
@@ -16,6 +19,9 @@ type LutherOpts struct {
 	NetworkPolicies []v1.NetworkPolicy
 }
 
+// InitLutherOpts initialized the LutherOpts instances based on the given config and the
+// accepts additionally a corev1 namespace list to pair them. If the labeling equality is given, 
+// a LutherOpts struct will be initialized and appended to a slice which will be returned.
 func InitLutherOpts(connectedSets config.ConnectedSets, namespaces *corev1.NamespaceList) ([]LutherOpts, error){
 	var lutherOpts []LutherOpts
 
@@ -37,7 +43,7 @@ func InitLutherOpts(connectedSets config.ConnectedSets, namespaces *corev1.Names
 		}
 	}
 
-	err := ValidateLutherOpts(lutherOpts)
+	err := validateLutherOpts(lutherOpts)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +51,12 @@ func InitLutherOpts(connectedSets config.ConnectedSets, namespaces *corev1.Names
 	return lutherOpts, nil
 }
 
-func ValidateLutherOpts(opts []LutherOpts) error{
+// validateLutherOpts contains a validation process applies it to a given slice of LutherOpts:
+// - minimal length has to be one option
+// - target namespace with labels has to be set
+// - connected set definition has to be complete without empty fields
+// This functions ensures a correct further course after the initialization of the LutherOpts.
+func validateLutherOpts(opts []LutherOpts) error{
 	if len(opts) < 1 {
 		return fmt.Errorf("no resources found at current kube context with matching labeling: cannot create network policies based on defined connected sets, for further information read the legislator instructions")
 	}

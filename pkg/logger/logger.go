@@ -6,6 +6,11 @@ import (
 	"github.com/guumaster/logsymbols"
 )
 
+// TriggerOutput is a void function that prints an output
+// with icon based on the given log level:
+// - success: green exclamation mark
+// - fail: red cross
+// - loading: blue info symbol
 func TriggerOutput(logLevel string, output string) {
 	switch logLevel {
 	case "success":
