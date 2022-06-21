@@ -1,4 +1,4 @@
-# legislator CLI
+# Legislator CLI
 
 **legislator** is an CLI for managing kubernetes network policies from a single config file. Like a member
 of a legislative body, the legislator CLI can create rules or laws for network traffic in a kubernetes cluster.
@@ -13,9 +13,9 @@ Various use cases could be made more pleasant:
 * network security apsetcs for layered architectures
 * public/private networking
 
-## legislator config
+## Legislator Config
 The base of the legislator CLI is an individual config with its own fields and syntax. 
-### config fields
+### Config Fields
 A legislator config file has to contain some mandatory fields for a successful creation and deployment of network policies.
 The following table contains all actual fields of the current release with an additional description.
 
@@ -26,7 +26,7 @@ name  | represents the identification of a connected set and has to be unique wi
 targetNamespaces  | contains any information from namespaces that are to be adressed 
 podSelector  | contains any information from pods that are to be adressed 
 matchLabels  | key-value representations of the labeling fields from namespace or pod instances
-### config anatomy
+### Config Anatomy
 ```yaml
 connectedSets:
   - name: <set-name>
@@ -38,7 +38,7 @@ connectedSets:
         <key>: <value>
 ```
 connectedSets represents a list of connected amounts that can communicate to each others. Every set can be desribed as a single list object encapsulated from the others. Every set has to contain a name for identification. At least one key-value pair has to be configured in a config to adress a namespace fornetwork policy deployment. The same applies to the podSelector-field.
-### example configuration
+### Example Configuration
 ```yaml
 connectedSets:
   - name: first-layer-set
@@ -62,7 +62,7 @@ In this example two sets are defined as **first-layer-set** and **second-layer-s
 
 **-->** That means that two isolated quantities of pods were created after an executed legislator deployment
 
-## commands and flags 
+## Commands and Flags 
 Following commands and flags are executable by using the current release of legislator CLI:
 
 command/flag | description
@@ -77,12 +77,25 @@ legislator apply --path=/path/to/config.yaml
 legislator destroy --path=/path/to/config.yaml
 ```
 
-## notes - FAQs
+## Unittest Execution
+The current release contains an integrationtest based on the latest binary of legislator. This test claims some prequirities for its execution:
+* stable connection to a kubernetes cluster with installed network plugin
+    * e.g. minikube with cilium network plugin
+    * ```bash 
+    minikube start --network-plugin=cni --cni=falsed .
+    ```
+* kubectl and kubens
+* helm
+
+![alt text](https://github.com/manuhak8s/legislator/blob/main/image.jpg?raw=true)
+
+## Notes - FAQs
 * every network policy is associated to its config file - that means by executing the destroy command, every network policy based on the config will be deleted from the current kubecontext
 * legislator CLI has no update functionality yet so that it is recommended to execute destroy and apply subsequently the updated config file
+* legislator CLI can work across multiple namespaces
 * this tool is a result of a bachelor thesis project and possibly will not be followed up 
 
-# installation
+# Installation
 ## legislator binary download link
 [legislator](https://github.com/manuhak8s/legislator/blob/validate-config/legislator)
 ## git clone and go build
