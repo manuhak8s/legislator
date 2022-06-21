@@ -1,0 +1,18 @@
+{{- range $pod := .Values.podList }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ $pod.name }}
+  namespace: {{ $pod.namespace }}
+  labels:
+  {{- range $key, $value := $pod.labels }}
+    {{ $key }}: {{ $value }}
+    {{- end}}
+spec:
+  containers:
+  - name: nginx-curl
+    image: manuhaa/legislator_tests:latest
+    ports:
+    - containerPort: 80
+{{- end}}

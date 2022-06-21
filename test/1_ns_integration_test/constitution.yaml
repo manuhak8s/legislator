@@ -1,0 +1,16 @@
+connectedSets:
+  - name: first-layer-set
+    targetNamespaces:
+      matchLabels:
+        project: dev
+    podSelector:
+      matchLabels:
+        set: first
+  - name: second-layer-set
+    targetNamespaces:
+      matchLabels:
+        project: dev
+    podSelector:
+      matchLabels:
+        set: second
+
