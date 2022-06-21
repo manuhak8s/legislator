@@ -67,9 +67,9 @@ Following commands and flags are executable by using the current release of legi
 
 command/flag | example | description
 ------------- | ------------- | -------------
-apply  | legislator apply --path=<config path> | Creates network policies based on the given config path to current kubecontext
-destroy  | legislator destroy --path=<config path> | Removes network policies based on the given config path from current kubecontext
---path  | legislator destroy --path=/path/to/config.yaml | Flag that accepts a valid path to an existant config file.
+apply  | legislator apply | Creates network policies based on the given config path to current kubecontext
+destroy  | legislator destroy | Removes network policies based on the given config path from current kubecontext
+--path  | --path=/path/to/config.yaml | Flag that accepts a valid path to an existant config file.
 
 ## notes - FAQs
 * every network policy is associated to its config file - that means by executing the destroy command, every network policy based on the config will be deleted from the current kubecontext
