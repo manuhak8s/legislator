@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# prequireties to execute test
-# - connection to minikube cluster
-# - cni pluging enabled & installed
-# - kubectl & kubens
+# prequireties to execute this test
+# - connection to minikube cluster + cni pluging enabled & installed
+# -- e.g. minikube start --network-plugin=cni --cni=false
+# - kubectl & kubens 
 # - helm
 
-# check k8s connection
+# K8S connection test
 echo " "
 echo "$(tput setaf 4) K8S CONNECTION CHECK $(tput setaf 7)"
 echo "$(tput setaf 3) ... checking minikube connection ... $(tput setaf 7)"
@@ -24,17 +24,13 @@ then
     echo "$(tput setaf 3) ... creating namespace(s) ... $(tput setaf 7)"
     kubectl apply -f ./namespaces/legislator_test_namespace.yaml
     kubens legislator-test-namespace
-    #sleep 3
 
     # create helm release
-    # - deploying namespace instance(s)
-    # - deploying pod instance(s)
     echo " "
     echo "$(tput setaf 3) ... installing helm chart ... $(tput setaf 7)"
     helm install legislator-test-release curl_helm_chart/ --atomic
-    #helm install legislator-test-release curl_helm_chart/ --wait
 
-    # create pods & expose services
+    # expose services
     echo " "
     echo "$(tput setaf 3) ... exposing services ... $(tput setaf 7)"
     declare -a pod_names=(
@@ -50,7 +46,7 @@ then
     done
     sleep 3
 
-    # check connections
+    # check connections before legislator config deployment
     echo " "
     echo "$(tput setaf 4) POD CONNECTION CHECKS $(tput setaf 7)"
     check1=()
@@ -71,12 +67,12 @@ then
         done 
     done 
 
-    # deploy constitution
+    # deploy legislator config
     echo " "
     echo "$(tput setaf 5) ... deploying network policies ... $(tput setaf 7)"
     ./legislator apply --path=./constitution.yaml
 
-    # check connections
+    # check connections after legislator config deployment
     echo " "
     check2=()
     echo "$(tput setaf 3) ... checking connections WITH network policies ... $(tput setaf 7)"
@@ -96,9 +92,10 @@ then
         done 
     done 
 
-    # Summary
+    # test summary
     echo " "
     echo "$(tput setaf 4) SUMMARY $(tput setaf 7)"
+    # summary test 1 - before legislator deployment
     echo "$(tput setaf 3) ... connection check BEFORE legislator deployment ... $(tput setaf 7)"
     if [ -z "$check1" ]; then
         echo "$(tput setaf 2) connection check succeeded $(tput setaf 7)"
@@ -111,6 +108,7 @@ then
         done
     fi
 
+    # summary test 2 - after legislator deployment
     echo " "
     echo "$(tput setaf 3) ... connection check AFTER legislator deployment ... $(tput setaf 7)"
     if [ -z "$check2" ]; then
@@ -124,6 +122,7 @@ then
         done
     fi
 
+    # removing all created instances from minikube cluster
     echo " "
     echo "$(tput setaf 4)  RESOURCE REMOVEMENT $(tput setaf 7)"
     echo "$(tput setaf 3) ... removing legislator netowrk policies ... $(tput setaf 7)"
