@@ -26,6 +26,18 @@ name  | represents the identification of a connected set and has to be unique wi
 targetNamespaces  | contains any information from namespaces that are to be adressed 
 podSelector  | contains any information from pods that are to be adressed 
 matchLabels  | key-value representations of the labeling fields from namespace or pod instances
+### config anatomy
+```yaml
+connectedSets:
+  - name: <set-name>
+    targetNamespaces:
+      matchLabels:
+        <key>: <value>
+    podSelector:
+      matchLabels:
+        <key>: <value>
+```
+connectedSets represents a list of connected amounts that can communicate to each others. Every set can be desribed as a single list object encapsulated from the others. Every set has to contain a name for identification. At least one key-value pair has to be configured in a config to adress a namespace fornetwork policy deployment. The same applies to the podSelector-field.
 ### example configuration
 ```yaml
 connectedSets:
@@ -44,12 +56,30 @@ connectedSets:
       matchLabels:
         set: second
 ```
-connectedSets represents a list of connected amounts that can communicate to each others.
 In this example two sets are defined as **first-layer-set** and **second-layer-set**. 
 * The first-layer-set adresses all namespaces with the labeling **project: dev** and creates network policies with associated ingress rules for all pods that are containing the labeling **set: first**.
 * The second-layer-set adresses all namespaces with the labeling **project: prod** and creates network policies with associated ingress rules for all pods that are containing the labeling **set: second**.
 
 **-->** That means that two isolated quantities of pods were created after an executed legislator deployment
 
-## legislator binary download
+## commands and flags 
+Following commands and flags are executable by using the current release of legislator CLI:
+command/flag | example | description
+apply  | legislator apply --path=<config path> | Creates network policies based on the given config path to current kubecontext
+destroy  | legislator destroy --path=<config path> | Removes network policies based on the given config path from current kubecontext
+--path  | legislator destroy --path=/path/to/config.yaml | Flag that accepts a valid path to an existant config file.
+
+## notes - FAQs
+* every network policy is associated to its config file - that means by executing the destroy command, every network policy based on the config will be deleted from the current kubecontext
+* legislator CLI has no update functionality yet so that it is recommended to execute destroy and apply subsequently the updated config file
+* this tool is a result of a bachelor thesis project and possibly will not be followed up 
+
+# installation
+## legislator binary download link
 [legislator](https://github.com/manuhak8s/legislator/blob/validate-config/legislator)
+## git clone and go build
+```bash
+git clone https://github.com/manuhak8s/legislator.git
+cd legislator
+go build .
+```
