@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/manuhak8s/legislator/blob/main/readme_res/logo/logo.png" alt="Sublime's custom image"/>
+</p>
+
 # Legislator CLI
 
 **legislator** is an CLI for managing kubernetes network policies from a single config file. Like a member
@@ -77,7 +81,7 @@ legislator apply --path=/path/to/config.yaml
 legislator destroy --path=/path/to/config.yaml
 ```
 
-## Unittest Execution
+## Integrationtest Execution
 The current release contains an integrationtest based on the latest binary of legislator CLI. This test claims some prequirities for its execution:
 * stable connection to a kubernetes cluster with installed network plugin
     * e.g. minikube with cilium network plugin
@@ -109,7 +113,7 @@ The second summary shows that no longer a curl-connection can be established to 
 
 # Installation
 ## legislator binary download link
-[legislator](https://github.com/manuhak8s/legislator/blob/validate-config/legislator)
+[legislator](https://github.com/manuhak8s/legislator/blob/main/legislator)
 ## git clone and go build
 ```bash
 git clone https://github.com/manuhak8s/legislator.git
