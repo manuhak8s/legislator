@@ -1,5 +1,5 @@
-<p align="center">
-  <img src="https://github.com/manuhak8s/legislator/blob/main/readme_res/logo/logo.png" alt="Sublime's custom image"/>
+<p>
+  <img src="https://github.com/manuhak8s/legislator/blob/main/readme_res/logo/logo.png" alt="Sublime's custom image"/><h1>Legislator CLI</h1>
 </p>
 
 # Legislator CLI
