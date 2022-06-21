@@ -69,7 +69,7 @@ command/flag | example | description
 ------------- | ------------- | -------------
 apply  | legislator apply | Creates network policies based on the given config path to current kubecontext
 destroy  | legislator destroy | Removes network policies based on the given config path from current kubecontext
---path  | --path=/path/to/config.yaml | Flag that accepts a valid path to an existant config file.
+--path  | --path=config.yaml | Flag that accepts a valid path to an existant config file.
 
 ## notes - FAQs
 * every network policy is associated to its config file - that means by executing the destroy command, every network policy based on the config will be deleted from the current kubecontext
