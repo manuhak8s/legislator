@@ -19,7 +19,7 @@ The base of the legislator CLI is an individual config with its own fields and s
 A legislator config file has to contain some mandatory fields for a successful creation and deployment of network policies.
 The following table contains all actual fields of the current release with an additional description.
 
-Field  | Descritopn
+Field  | Descriton
 ------------- | -------------
 connectedSets  | can be described as the opening sequence and list representation of connected amounts. 
 name  | represents the identification of a connected set and has to be unique within a config file.
@@ -66,6 +66,7 @@ In this example two sets are defined as **first-layer-set** and **second-layer-s
 Following commands and flags are executable by using the current release of legislator CLI:
 
 command/flag | example | description
+------------- | ------------- | -------------
 apply  | legislator apply --path=<config path> | Creates network policies based on the given config path to current kubecontext
 destroy  | legislator destroy --path=<config path> | Removes network policies based on the given config path from current kubecontext
 --path  | legislator destroy --path=/path/to/config.yaml | Flag that accepts a valid path to an existant config file.
