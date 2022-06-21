@@ -78,7 +78,7 @@ legislator destroy --path=/path/to/config.yaml
 ```
 
 ## Unittest Execution
-The current release contains an integrationtest based on the latest binary of legislator. This test claims some prequirities for its execution:
+The current release contains an integrationtest based on the latest binary of legislator CLI. This test claims some prequirities for its execution:
 * stable connection to a kubernetes cluster with installed network plugin
     * e.g. minikube with cilium network plugin
     * ```bash 
@@ -87,6 +87,17 @@ The current release contains an integrationtest based on the latest binary of le
 * kubectl and kubens
 * helm
 
+After all the prequirities have been met the test can be started by executing the shellscript:
+```bash
+sh exec.sh # macOS
+bash exec.sh # windows
+./exec.sh # linux
+```
+
+The test summary displays notifictaions regarding connection checks. Four pods based on the Dockerfile from the integrationtest directory are deployed and are trying to curl each other. In the first summary a notification is displayed with a successful curl-connection between every pod. After that a legislator config becomes deployed by the CLI that leads to two connected sets:
+* **set-1:** pod-1 and pod-3 
+* **set-2:** pod-2 and pod-4
+The second summary shows that no longer a curl-connection can be established to the other connected set. After the summary all created resources become removed from the kubernetes cluster.
 ![alt text](https://github.com/manuhak8s/legislator/blob/main/readme_res/pic/summary_integration_test.png)
 
 ## Notes - FAQs
